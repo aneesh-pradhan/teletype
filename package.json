@@ -15,7 +15,9 @@
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres redis",
-    "db:psql": "PGPASSWORD=teletype psql -h localhost -U teletype -d teletype"
+    "db:psql": "PGPASSWORD=teletype psql -h localhost -U teletype -d teletype",
+    "stack:up": "bash scripts/dev-up.sh",
+    "stack:down": "bash scripts/dev-down.sh"
   },
   "engines": {
     "node": ">=20"

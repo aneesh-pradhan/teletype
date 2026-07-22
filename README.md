@@ -25,25 +25,30 @@ Installed / expected on the host:
 
 After first Docker install: `sudo usermod -aG docker $USER` then re-login (or `sg docker -c bash`).
 
-## Quick start
+## Quick start (all-in-one host)
+
+This machine hosts **frontend, API, Postgres, and Redis**. Open the app in a browser:
+
+**→ http://localhost:5173**
 
 ```bash
-# Data services (Postgres 16 + Redis 7)
-docker compose up -d
-
-# App
 pnpm install
-pnpm --filter @teletype/shared build
-pnpm dev
+pnpm stack:up      # docker DBs + API :8787 + web :5173
+# stop app servers (keeps DBs):  pnpm stack:down
+# stop DBs too:                  pnpm db:down
 ```
 
-- Web: http://localhost:5173  
-- API: http://localhost:8787  
-- Postgres: `localhost:5432` (user/pass/db: `teletype` / `teletype` / `teletype`)  
-- Redis: `localhost:6379`  
+| Service | URL / port |
+|---------|------------|
+| **Frontend (test here)** | http://localhost:5173 |
+| API | http://localhost:8787 |
+| Health | http://localhost:8787/health |
+| Postgres | `localhost:5432` (`teletype` / `teletype` / `teletype`) |
+| Redis | `localhost:6379` |
 
 Copy `.env.example` → `.env` when wiring the API to the DB.  
-Vite proxies `/api` and `/health` to the API in development.
+Vite proxies `/api` and `/health` to the API in development.  
+Dev logs (local only): `.grok/logs/`.
 
 ## What’s in the basic MVP
 
@@ -80,6 +85,9 @@ Vite proxies `/api` and `/health` to the API in development.
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR checklist |
 | `.github/CODEOWNERS` | Default review ownership |
 | `.github/copilot-instructions.md` | In-repo agent guidance for the product |
+
+**Process:** issues track work → branch → PR → CI green → squash-merge → close issues.  
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Sprint board: GitHub Project **teletype** (Backlog / Ready / In Progress / In Review / Done).
 
 ## Roadmap (post-MVP)
 
