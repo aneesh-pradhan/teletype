@@ -1,6 +1,8 @@
 import {
+  DEFAULT_TIME_DURATION,
   calcAccuracy,
   calcWpm,
+  modeKey,
   type GameMode,
   type LiveMetrics,
   type ModeConfig,
@@ -27,12 +29,6 @@ export interface EngineOptions {
   /** Full text to type (already generated). */
   text: string;
   now?: () => number;
-}
-
-function buildModeKey(mode: ModeConfig): string {
-  if (mode.mode === "time") return `time:${mode.duration ?? 30}`;
-  if (mode.mode === "words") return `words:${mode.wordCount ?? 25}`;
-  return `quote:${mode.quoteId ?? "random"}`;
 }
 
 function emptyMetrics(): LiveMetrics {
@@ -69,20 +65,17 @@ export class TypingEngine {
   private modeKey: string;
   private now: () => number;
   private durationMs: number | null;
-  private wordTarget: number | null;
 
   constructor(opts: EngineOptions) {
     this.target = opts.text;
     this.mode = opts.mode;
-    this.modeKey = buildModeKey(opts.mode);
+    this.modeKey = modeKey(opts.mode);
     this.now = opts.now ?? (() => performance.now());
     this.errorMap = Array.from({ length: opts.text.length }, () => false);
     this.durationMs =
       opts.mode.mode === "time"
-        ? (opts.mode.duration ?? 30) * 1000
+        ? (opts.mode.duration ?? DEFAULT_TIME_DURATION) * 1000
         : null;
-    this.wordTarget =
-      opts.mode.mode === "words" ? (opts.mode.wordCount ?? 25) : null;
   }
 
   getSnapshot(): EngineSnapshot {

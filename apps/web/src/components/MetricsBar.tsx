@@ -29,7 +29,7 @@ export function MetricsBar({ metrics, status, remainingLabel }: Props) {
         </div>
       </div>
       <div className="metric">
-        <div className="label">raw</div>
+        <div className="label">net</div>
         <div className="value">
           {status === "idle" ? "—" : metrics.netWpm.toFixed(0)}
         </div>

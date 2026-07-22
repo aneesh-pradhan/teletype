@@ -63,6 +63,9 @@ export function App() {
 
   const engineRef = useRef<TypingEngine | null>(null);
   const savedRef = useRef(false);
+  /** Tab arms restart; Enter within the window confirms (Monkeytype-style). */
+  const tabRestartArmedRef = useRef(false);
+  const tabRestartTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -165,18 +168,52 @@ export function App() {
   }, [snapshot]);
 
   useEffect(() => {
+    const clearTabRestartArm = () => {
+      tabRestartArmedRef.current = false;
+      if (tabRestartTimerRef.current != null) {
+        window.clearTimeout(tabRestartTimerRef.current);
+        tabRestartTimerRef.current = null;
+      }
+    };
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "?" && !helpOpen) {
         e.preventDefault();
         setHelpOpen(true);
+        return;
       }
       if ((e.key === "Escape" || e.key === "q") && helpOpen) {
         setHelpOpen(false);
+        return;
+      }
+      if (helpOpen) return;
+
+      // Tab + Enter restart (help manpage documents this).
+      if (e.key === "Tab" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        tabRestartArmedRef.current = true;
+        if (tabRestartTimerRef.current != null) {
+          window.clearTimeout(tabRestartTimerRef.current);
+        }
+        tabRestartTimerRef.current = window.setTimeout(clearTabRestartArm, 1500);
+        return;
+      }
+      if (e.key === "Enter" && tabRestartArmedRef.current) {
+        e.preventDefault();
+        clearTabRestartArm();
+        void rebuild();
+        return;
+      }
+      if (tabRestartArmedRef.current && e.key !== "Shift") {
+        clearTabRestartArm();
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [helpOpen]);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      clearTabRestartArm();
+    };
+  }, [helpOpen, rebuild]);
 
   const onKey = (key: string) => {
     const eng = engineRef.current;
