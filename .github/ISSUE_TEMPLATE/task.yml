@@ -1,0 +1,38 @@
+name: Engineering task
+description: Trackable implementation work (scaffolding, refactors, chores)
+title: "[task] "
+labels: ["task", "triage"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: Done looks like…
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: In / out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] …
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 — blocker
+        - P1 — high
+        - P2 — normal
+        - P3 — nice to have
+    validations:
+      required: true

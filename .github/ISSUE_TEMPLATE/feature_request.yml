@@ -1,0 +1,44 @@
+name: Feature request
+description: Propose a product or technical enhancement
+title: "[feat] "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What user problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should teletype behave?
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Suggested phase
+      options:
+        - MVP polish
+        - Auth / persistence
+        - Leaderboards
+        - Multiplayer (Phase 2)
+        - Infra / DX
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional
+  - type: checkboxes
+    id: aesthetic
+    attributes:
+      label: Aesthetic fit
+      options:
+        - label: This fits the TTY / manpage / retro-terminal aesthetic
+          required: false

@@ -1,0 +1,23 @@
+{
+  "name": "teletype",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Retro TTY-inspired typing game",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @teletype/web --filter @teletype/api dev",
+    "dev:web": "pnpm --filter @teletype/web dev",
+    "dev:api": "pnpm --filter @teletype/api dev",
+    "build": "pnpm -r --filter @teletype/shared --filter @teletype/api --filter @teletype/web build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r --if-present test",
+    "lint": "pnpm -r --if-present lint",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres redis",
+    "db:psql": "PGPASSWORD=teletype psql -h localhost -U teletype -d teletype"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
