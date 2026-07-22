@@ -1,0 +1,89 @@
+# --- Dependencies & build ---
+node_modules/
+dist/
+build/
+.turbo/
+.next/
+coverage/
+*.tsbuildinfo
+apps/web/dist/
+apps/api/dist/
+packages/*/dist/
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Logs & caches ---
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache/
+.vite/
+.eslintcache
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# --- Agent tooling (local only — never commit) ---
+# Grok / Claude / Cursor / Codex project rules & memory
+AGENTS.md
+Agents.md
+AGENT.md
+CLAUDE.md
+Claude.md
+CLAUDE.local.md
+.grok/
+.claude/
+.cursor/
+.codex/
+.agents/
+# Local-only GitHub agent packs (product copilot-instructions.md IS committed)
+.github/instructions/
+.github/*.local.md
+
+# Agent planning, design scratch, session notes (not product code)
+docs/agent/
+docs/planning/
+docs/design/
+.planning/
+.plans/
+.scratch/
+.notes/
+PLAN.md
+plan.md
+DESIGN.md
+design.md
+TODO.md
+todo.md
+NOTES.md
+notes.md
+MEMORY.md
+memory.md
+*design-doc*.md
+*design-summary*.md
+*design-review*.md
+grok-design-*.md
+
+# Local agent rule packs under vendor-style paths
+**/rules/*.local.md
+**/*.agent.md
+**/*.agents.md
+
+# --- Test / e2e artifacts ---
+playwright-report/
+test-results/
+.nyc_output/
+
+# --- Docker / local data ---
+*.local
+docker-data/
+postgres-data/
+redis-data/

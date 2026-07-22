@@ -1,0 +1,92 @@
+import { useEffect, useMemo, useRef } from "react";
+import type { EngineSnapshot } from "../engine/typingEngine";
+
+interface Props {
+  snapshot: EngineSnapshot;
+  focused: boolean;
+  onFocus: () => void;
+  onKey: (key: string) => void;
+}
+
+export function TypingStage({ snapshot, focused, onFocus, onKey }: Props) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (focused) inputRef.current?.focus();
+  }, [focused, snapshot.status]);
+
+  const chars = useMemo(() => {
+    const out: { ch: string; cls: string; isCaret: boolean }[] = [];
+    const { target, caretIndex, typed, errorMap } = snapshot;
+    for (let i = 0; i < target.length; i++) {
+      const ch = target[i]!;
+      let cls = "char";
+      if (i < caretIndex) {
+        const typedCh = typed[i];
+        cls += typedCh === ch && !errorMap[i] ? " correct" : " incorrect";
+        // If they corrected after error, errorMap stays true → show incorrect style once erred
+        if (errorMap[i]) cls = "char incorrect";
+        else if (typedCh === ch) cls = "char correct";
+        else cls = "char incorrect";
+      }
+      out.push({ ch, cls, isCaret: i === caretIndex && snapshot.status !== "finished" });
+    }
+    return out;
+  }, [snapshot]);
+
+  return (
+    <div
+      className="typing-area"
+      role="textbox"
+      aria-label="Typing area"
+      tabIndex={0}
+      onClick={() => {
+        onFocus();
+        inputRef.current?.focus();
+      }}
+      onFocus={onFocus}
+    >
+      <input
+        ref={inputRef}
+        className="hidden-input"
+        autoComplete="off"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        value=""
+        aria-hidden
+        onChange={() => {}}
+        onKeyDown={(e) => {
+          if (e.key === "Tab") return;
+          if (e.ctrlKey || e.metaKey || e.altKey) return;
+          if (e.key === "Backspace") {
+            e.preventDefault();
+            onKey("Backspace");
+            return;
+          }
+          if (e.key.length === 1) {
+            e.preventDefault();
+            onKey(e.key);
+          }
+        }}
+      />
+      <div className="words" aria-live="off">
+        {chars.map((c, i) => (
+          <span key={i} className={c.isCaret ? `${c.cls} caret-host` : c.cls}>
+            {c.isCaret && <span className="caret" aria-hidden />}
+            {c.ch}
+          </span>
+        ))}
+        {snapshot.status !== "finished" &&
+          snapshot.caretIndex >= snapshot.target.length && (
+            <span className="caret" aria-hidden />
+          )}
+      </div>
+      {!focused && snapshot.status !== "finished" && (
+        <p className="hint" style={{ marginTop: "1rem" }}>
+          click or focus to start typing
+        </p>
+      )}
+    </div>
+  );
+}
