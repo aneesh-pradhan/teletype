@@ -57,7 +57,11 @@ export function TypingStage({ snapshot, focused, onFocus, onKey }: Props) {
         aria-hidden
         onChange={() => {}}
         onKeyDown={(e) => {
-          if (e.key === "Tab") return;
+          // Tab is reserved for Tab+Enter restart (handled at App level).
+          if (e.key === "Tab") {
+            e.preventDefault();
+            return;
+          }
           if (e.ctrlKey || e.metaKey || e.altKey) return;
           if (e.key === "Backspace") {
             e.preventDefault();

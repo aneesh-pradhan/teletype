@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { modeKey } from "@teletype/shared";
 import { TypingEngine, generateWordText } from "./typingEngine";
 
 describe("TypingEngine", () => {
+  it("uses shared modeKey helper for result identity", () => {
+    const engine = new TypingEngine({
+      mode: { mode: "time" },
+      text: "hello",
+    });
+    expect(engine.getSnapshot().modeKey).toBe(modeKey({ mode: "time" }));
+    expect(engine.getSnapshot().modeKey).toBe("time:30");
+  });
+
   it("tracks correct keystrokes and finishes words mode", () => {
     let t = 0;
     const engine = new TypingEngine({
@@ -20,6 +30,7 @@ describe("TypingEngine", () => {
     expect(snap.metrics.correctChars).toBe(5);
     expect(snap.metrics.incorrectChars).toBe(0);
     expect(snap.metrics.accuracy).toBe(100);
+    expect(snap.modeKey).toBe(modeKey({ mode: "words", wordCount: 10 }));
   });
 
   it("counts mistakes without undoing accuracy on backspace", () => {
