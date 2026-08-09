@@ -51,6 +51,54 @@ describe("TypingEngine", () => {
     expect(snap.status).toBe("finished");
   });
 
+  it("net WPM does not penalize corrected errors", () => {
+    let t = 0;
+    const engine = new TypingEngine({
+      mode: { mode: "words", wordCount: 10 },
+      text: "hi",
+      now: () => t,
+    });
+
+    t = 1000;
+    engine.handleKey("x"); // wrong at pos 0
+    t = 2000;
+    engine.handleKey("Backspace"); // correct it
+    t = 3000;
+    engine.handleKey("h"); // correct at pos 0
+    t = 4000;
+    engine.handleKey("i"); // correct at pos 1
+
+    const snap = engine.getSnapshot();
+    // correctChars = 2, incorrectChars = 1 (cumulative for accuracy)
+    // uncorrectedErrors = 0 (the error was corrected via Backspace)
+    // net wpm should equal gross wpm since no uncorrected errors
+    expect(snap.metrics.correctChars).toBe(2);
+    expect(snap.metrics.incorrectChars).toBe(1);
+    expect(snap.metrics.wpm).toBe(snap.metrics.netWpm);
+  });
+
+  it("net WPM penalizes uncorrected errors", () => {
+    let t = 0;
+    const engine = new TypingEngine({
+      mode: { mode: "words", wordCount: 10 },
+      text: "hi",
+      now: () => t,
+    });
+
+    t = 1000;
+    engine.handleKey("x"); // wrong at pos 0, not corrected
+    t = 2000;
+    engine.handleKey("i"); // target[1] = "i", correct
+
+    const snap = engine.getSnapshot();
+    expect(snap.metrics.correctChars).toBe(1);
+    expect(snap.metrics.incorrectChars).toBe(1);
+    // uncorrectedErrors = 1 (pos 0 still has "x" instead of "h")
+    // netWpm = calcWpm(max(0, 1 - 1), elapsed) = 0
+    expect(snap.metrics.netWpm).toBe(0);
+    expect(snap.metrics.wpm).toBeGreaterThan(0);
+  });
+
   it("finishes time mode on tick after duration", () => {
     let t = 0;
     const engine = new TypingEngine({
