@@ -112,6 +112,52 @@ describe("TypingEngine", () => {
     expect(engine.tick()).toBe(true);
     expect(engine.getSnapshot().status).toBe("finished");
   });
+
+  it("extendText appends to target and errorMap", () => {
+    let t = 0;
+    const engine = new TypingEngine({
+      mode: { mode: "time", duration: 60 },
+      text: "ab cd",
+      now: () => t,
+    });
+    const originalLen = engine.getSnapshot().target.length;
+    engine.extendText(" ef gh");
+    const snap = engine.getSnapshot();
+    expect(snap.target).toBe("ab cd ef gh");
+    expect(snap.target.length).toBe(originalLen + 6);
+    expect(snap.errorMap.length).toBe(snap.target.length);
+  });
+
+  it("shouldExtendText returns true at 80% in time mode", () => {
+    let t = 0;
+    const engine = new TypingEngine({
+      mode: { mode: "time", duration: 60 },
+      text: "abcdefghij", // 10 chars
+      now: () => t,
+    });
+    // Type 7 chars (70%) — should not trigger
+    for (const ch of "abcdefg") {
+      t += 100;
+      engine.handleKey(ch);
+    }
+    expect(engine.shouldExtendText()).toBe(false);
+    // Type 1 more (80%) — should trigger
+    t += 100;
+    engine.handleKey("h");
+    expect(engine.shouldExtendText()).toBe(true);
+  });
+
+  it("shouldExtendText returns false in words mode", () => {
+    const engine = new TypingEngine({
+      mode: { mode: "words", wordCount: 10 },
+      text: "abcdefghij",
+    });
+    // Type all chars — should still be false
+    for (const ch of "abcdefghij") {
+      engine.handleKey(ch);
+    }
+    expect(engine.shouldExtendText()).toBe(false);
+  });
 });
 
 describe("generateWordText", () => {

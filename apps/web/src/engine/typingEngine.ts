@@ -91,6 +91,15 @@ export class TypingEngine {
     };
   }
 
+  /** Extend the target text (used in time mode to avoid running out). */
+  extendText(additional: string): void {
+    if (this.status === "finished" || additional.length === 0) return;
+    this.target += additional;
+    // Extend errorMap to cover the new characters
+    const extra = Array.from({ length: additional.length }, () => false);
+    this.errorMap.push(...extra);
+  }
+
   /** Handle a printable character or Backspace. Returns true if state changed. */
   handleKey(key: string): boolean {
     if (this.status === "finished") return false;
@@ -134,6 +143,13 @@ export class TypingEngine {
 
     this.checkFinished();
     return true;
+  }
+
+  /** Check whether the caret is approaching the end of the target text. */
+  shouldExtendText(): boolean {
+    if (this.mode.mode !== "time") return false;
+    if (this.status !== "running") return false;
+    return this.caretIndex >= this.target.length * 0.8;
   }
 
   /** Call on animation frame / timer for time-mode expiry. */
@@ -256,8 +272,8 @@ export function generateTimeText(
   duration: TimeDuration | number,
   rng: () => number = Math.random,
 ): string {
-  // ~60 wpm * duration seconds / 60 * 1.5 buffer
-  const estimate = Math.max(40, Math.ceil((duration / 60) * 60 * 2.5));
+  // 5x buffer handles up to ~300 WPM; engine extends dynamically if still exhausted.
+  const estimate = Math.max(40, Math.ceil((duration / 60) * 60 * 5));
   return generateWordText(words, estimate, rng);
 }
 
