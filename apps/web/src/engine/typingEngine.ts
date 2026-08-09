@@ -167,6 +167,24 @@ export class TypingEngine {
     this.finishedAt = this.now();
   }
 
+  /**
+   * Count positions where the user typed incorrectly and did not correct it.
+   * A position is "uncorrected" if errorMap[i] is true AND the final typed
+   * character at that position differs from the target.
+   */
+  private countUncorrectedErrors(): number {
+    let count = 0;
+    for (let i = 0; i < this.caretIndex && i < this.errorMap.length; i++) {
+      if (this.errorMap[i]) {
+        // The position was errored at some point. Check if it's still wrong.
+        if (this.typed[i] !== this.target[i]) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
   private computeMetrics(): LiveMetrics {
     if (this.status === "idle") return emptyMetrics();
 
@@ -175,8 +193,13 @@ export class TypingEngine {
     const elapsedMs = Math.max(0, end - start);
 
     const wpm = round1(calcWpm(this.correctChars, elapsedMs));
+
+    // Net WPM: subtract only uncorrected errors (positions where errorMap is
+    // still true at or behind the caret). Corrected errors should not penalize
+    // net WPM — they already cost time via the Backspace + retype cycle.
+    const uncorrectedErrors = this.countUncorrectedErrors();
     const netWpm = round1(
-      calcWpm(Math.max(0, this.correctChars - this.incorrectChars), elapsedMs),
+      calcWpm(Math.max(0, this.correctChars - uncorrectedErrors), elapsedMs),
     );
     const accuracy = round1(
       calcAccuracy(this.correctChars, this.incorrectChars),
