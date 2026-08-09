@@ -125,6 +125,10 @@ body {
   .caret {
     animation: none !important;
   }
+
+  .words {
+    transition: none !important;
+  }
 }
 
 .app {
@@ -261,6 +265,14 @@ body {
   word-break: break-word;
   white-space: pre-wrap;
   user-select: none;
+  position: relative;
+  /* Fixed viewport for long runs: content beyond this height is translated
+     out of view (see TypingStage) so the caret stays comfortably in sight
+     and the prompt scrolls smoothly instead of jumping the page. */
+  max-height: 7.5rem;
+  overflow: hidden;
+  transition: transform 220ms ease-out;
+  will-change: transform;
 }
 
 .char {
@@ -269,6 +281,10 @@ body {
 
 .char.correct {
   color: var(--fg);
+  /* Subtle phosphor afterglow on lit characters — readable first, nostalgia
+     second. Flat-panel themes (vga/xterm/solarized) set --glow to transparent
+     so this is a no-op there. */
+  text-shadow: 0 0 1px var(--glow);
 }
 
 .char.incorrect {
