@@ -128,6 +128,21 @@ describe("TypingEngine", () => {
     expect(snap.errorMap.length).toBe(snap.target.length);
   });
 
+  it("extendText preserves word boundary without leading space (production path)", () => {
+    let t = 0;
+    const engine = new TypingEngine({
+      mode: { mode: "time", duration: 60 },
+      text: "hello world",
+      now: () => t,
+    });
+    // Simulate production: generateWordText returns "foo bar" (no leading space)
+    engine.extendText("foo bar");
+    const snap = engine.getSnapshot();
+    // Words must not be glued together
+    expect(snap.target).toBe("hello world foo bar");
+    expect(snap.errorMap.length).toBe(snap.target.length);
+  });
+
   it("shouldExtendText returns true at 80% in time mode", () => {
     let t = 0;
     const engine = new TypingEngine({

@@ -94,6 +94,12 @@ export class TypingEngine {
   /** Extend the target text (used in time mode to avoid running out). */
   extendText(additional: string): void {
     if (this.status === "finished" || additional.length === 0) return;
+    // Ensure a word boundary between existing text and the extension
+    const needsSpace =
+      this.target.length > 0 &&
+      !/\s$/.test(this.target) &&
+      !/^\s/.test(additional);
+    if (needsSpace) additional = " " + additional;
     this.target += additional;
     // Extend errorMap to cover the new characters
     const extra = Array.from({ length: additional.length }, () => false);
