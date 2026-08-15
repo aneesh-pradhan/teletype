@@ -24,6 +24,9 @@ import { ModeSelector } from "./components/ModeSelector";
 import { ResultsPanel } from "./components/ResultsPanel";
 import { TypingStage } from "./components/TypingStage";
 
+/** Extension chunk size for time mode when the caret approaches the end. */
+const TIME_MODE_EXTENSION_WORDS = 100;
+
 function emptySnap(): EngineSnapshot {
   return {
     status: "idle",
@@ -219,6 +222,10 @@ export function App() {
     const eng = engineRef.current;
     if (!eng) return;
     if (eng.handleKey(key)) {
+      // Extend text in time mode when the user is approaching the end
+      if (eng.shouldExtendText()) {
+        eng.extendText(generateWordText(words, TIME_MODE_EXTENSION_WORDS));
+      }
       setSnapshot(eng.getSnapshot());
     }
   };
